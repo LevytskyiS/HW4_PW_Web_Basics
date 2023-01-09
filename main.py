@@ -13,14 +13,14 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
         pr_url = urllib.parse.urlparse(self.path)
         if pr_url.path == "/":
-            self.set_html_file("index.html")
-        elif pr_url.path == "/message.html":
-            self.set_html_file("message.html")
+            self.set_html_file("./static/index.html")
+        elif pr_url.path == "/message":
+            self.set_html_file("./static/message.html")
         else:
             if pathlib.Path().joinpath(pr_url.path[1:]).exists():
                 self.send_static()
             else:
-                self.set_html_file("error.html", 404)
+                self.set_html_file("./static/error.html", 404)
 
     def do_POST(self):
 
@@ -32,9 +32,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def set_html_file(self, filename: str, status_code=200):
 
-        self.send_response(
-            status_code,
-        )
+        self.send_response(status_code)
         self.send_header("Content-type", "text/html")
         self.end_headers()
         with open(filename, "rb") as file:
@@ -86,11 +84,13 @@ def run_server():
 
     except KeyboardInterrupt:
         print(f"Destroy server.")
+
     finally:
         sock.close()
 
 
 def run_client(data: bytes):
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server = "localhost", 5000
     sock.sendto(data, server)
@@ -108,5 +108,5 @@ def run(server_class=HTTPServer, handler_class=CustomHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    main_server = Thread(target=run).start()
     echo_server = Thread(target=run_server).start()
+    run()
